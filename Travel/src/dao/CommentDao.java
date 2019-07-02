@@ -1,0 +1,70 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import po.Comment;
+import po.User;
+import util.DBUtil;
+
+public class CommentDao {
+	
+	
+	public boolean update(String sql,Object[] args){	
+		Connection conn=null;
+		PreparedStatement ps=null;
+		boolean flag=false;
+		try {
+			conn=DBUtil.getConnection();
+			ps=conn.prepareStatement(sql);
+			if(args!=null){
+				for(int i=0;i<=args.length-1;i++){
+					ps.setObject(1+i, args[i]);
+				}
+			}
+			int row=ps.executeUpdate();
+			if(row>0){
+				flag=true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			DBUtil.close(conn, ps);
+		}
+		return flag;
+	}
+	
+	public List<Comment> findComment(String sql,String blogId) {
+		List<Comment> comLis = new ArrayList<>();
+		Comment comment = null;
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		try {
+			// 1、得到数据库连接
+			connection = DBUtil.getConnection();
+			// 2、准备SQL语句
+			// 3、预编译
+			preparedStatement = connection.prepareStatement(sql);
+			// 5、执行查询，返回结果集
+			resultSet = preparedStatement.executeQuery();
+			// 6、判断并分析结果集，得到user对象
+			while (resultSet.next()) {
+//				comment = new Comment();
+				//user.setHead(resultSet.getString("head"));
+				comLis.add(new Comment(resultSet.getString("mcomment"), resultSet.getString("uname"), resultSet.getString("msgTime"),resultSet.getString("blogId")));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			// 关闭资源
+			DBUtil.close(connection, preparedStatement, resultSet);
+		}
+		return comLis;
+	}
+}

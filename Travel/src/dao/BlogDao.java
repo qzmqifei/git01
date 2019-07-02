@@ -1,0 +1,99 @@
+package dao;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import po.Blog;
+
+public class BlogDao {
+
+	@SuppressWarnings("unchecked")
+	//分页
+	public List<Blog> findBlogList(Integer userId, Integer num, Integer pageSize) {
+		// 准备sql语句、
+		String sql = "SELECT m.*,IFNULL(n,0) contentNumber from (select * from tb_blog  where userId = ?) m left join (select blogId,COUNT(1) n  from tb_msg GROUP BY blogId) t ON m.blogId = t.blogId  ORDER BY pubTime LIMIT ? , ?;";
+		//准备参数集合
+		List<Object> params = new ArrayList<>();
+		params.add(userId);
+		params.add(num);
+		params.add(pageSize);
+		//查询到的结果集
+		List<Blog> list = BaseDao.queryRows(sql, params, Blog.class);
+		return list;
+	}
+
+	//找到所有的记录
+	public long findAll(Integer userId) {
+		// 准备sql语句
+		String sql = "select count(1) from tb_blog where userId = ?";
+		//准备参数集合
+		List<Object> params = new ArrayList<>();
+		params.add(userId);
+		//查询到所有记录
+		long totalAll = (long) BaseDao.findSingleVlaue(sql, params);
+		return totalAll;
+	}
+	
+	//删除tb_msg里的数据
+	public static void delete(String str){
+		String sql = "delete from tb_msg where blogId = ?";
+		List<Object> params = new ArrayList<>();
+		params.add(str);
+		BaseDao.executeUpdate(sql, params);
+	}
+
+	//删除日志
+	public int deleteBlogByBlogId(String blogId) {
+		//先删除tb_msg里的评论
+		delete(blogId);
+		// 准备sql语句
+		String sql = "delete from tb_blog where blogId = ?";
+		//准备参数集合
+		List<Object> params = new ArrayList<>();
+		params.add(blogId);
+		//返回受影响的行数
+		int row = BaseDao.executeUpdate(sql, params);
+		return row;
+	}
+
+	//查询指定Id的Blog
+	public Blog checkBlog(String blogId) {
+		//准备sql语句
+		String sql = "select * from tb_blog where blogId = ?";
+		//参数集合
+		List<Object> list = new ArrayList<>();
+		list.add(blogId);
+		Blog blog = (Blog) BaseDao.queryRow(sql, list, Blog.class);  
+		return blog;
+	}
+
+	//修改日志
+	public int updates(String blogId, String title, String content) {
+		// 准备sql语句
+		String sql = "update tb_blog set btitle = ?,btext = ?,pubTime = NOW() where blogId = ?";
+		//准备参数集合
+		List<Object> params = new ArrayList<>();
+		params.add(title);
+		params.add(content);
+		params.add(blogId);
+		//返回受影响
+		int row = BaseDao.executeUpdate(sql, params);
+		return row;
+	}
+
+	
+	//添加日志
+	public int addBlog(String title, String content,Integer userId) {
+		// 准备sql语句
+		String sql = "insert into tb_blog (btitle,btext,userId,pubTime) values (?,?,?,NOW());";
+		//参数集合
+		List<Object> params = new ArrayList<>();
+		params.add(title);
+		params.add(content);
+		params.add(userId);
+		//返回受影响行数
+		int row = BaseDao.executeUpdate(sql, params);
+		return row;
+	}
+
+}

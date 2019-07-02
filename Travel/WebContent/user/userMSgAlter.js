@@ -1,0 +1,100 @@
+//打开模太框
+function openModel(){
+	$("#myModalLabel").html("<span class='glyphicon glyphicon-pencil'></span> 修改个人信息");
+	$("#savemsg").html("");
+		var nick=$("#nick1").html();  						
+		$("#nick").val(nick);
+ 		var sex=$("#sex1").html();
+ 		$("#sex").val(sex);
+ 		var mood=$("#mood1").html();
+ 		$("#mood").val(mood);
+ 		var phone=$("#phone1").html();
+ 		$("#phone").val(phone);
+ 		var email=$("#email1").html();
+ 		$("#email").val(email);
+ 		$("#myModal").modal("show");
+ 		
+}
+function saveMsg(){
+	var nick = $("#nick").val();
+	var sex=$("#sex").val();
+	var mood=$("#mood").val();
+	var phone=$("#phone").val();
+	var email=$("#email").val();
+	var uname=$("#uname").val();
+	console.log(uname);
+	if(isEmpty(nick)&&nick.length>2&&nick.length<10){
+		$("#savemsg").html("昵称不能为空");
+		return;
+	}
+	$("#savemsg").html("");
+	if(isEmpty(sex)){
+		$("#savemsg").html("性别不能为空");
+		return;
+	}
+	$("#savemsg").html("");
+	if(isEmpty(mood)){
+		$("#savemsg").html("心情不能为空");
+		return;
+	}
+	$("#savemsg").html("");
+	if(isEmpty(phone)){
+		$("#savemsg").html("手机号不能为空");
+		return;
+	}
+	$("#savemsg").html("");
+	if(isEmpty(email)){
+		$("#savemsg").html("邮箱不能为空");
+		return;
+	}
+	$.ajax({
+		type:"post",
+		url:"userServlet",
+		data:{
+			nick:nick,
+			sex:sex,
+			mood:mood,
+			phone:phone,
+			email:email,
+			uname:uname,
+			actionName:"saveUserMsg"
+		},
+		success:function(result) {
+			console.log(result.code);
+			if (result.code ==1) {
+				//拿到莫太框的值
+				var nick=$("#nick").val();
+				var sex=$("#sex").val();
+				var mood=$("#mood").val();
+				var phone=$("#phone").val();
+				var email=$("#email").val();
+				
+				//赋值前台
+				$("#nick1").html(nick);
+				$("#nick2").html(nick);
+				$("#nick3").html(nick);
+				$("#sex1").html(sex);
+				$("#mood1").html(mood);
+				$("#mood2").html(mood);
+				$("#phone1").html(phone);
+				$("#email1").html(email);
+				console.log(nick,sex,mood,phone,email);
+				$("#savemsg").html("修改成功");
+				$("#myModal").modal("hide");
+			} else {
+				$("#savemsg").html("修改失败");
+			}
+		}
+			
+	});
+	
+}
+
+function openHeadMenu(){
+document.getElementById("imageform").style.display='';
+	 /*document.getElementById("imageform").style.display='none';*/
+	
+	} 	
+
+
+
